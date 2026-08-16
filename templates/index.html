@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FashionAI — Multimodal Fashion Intelligence</title>
+
+    <meta name="description"
+        content="Multimodal AI system for fashion product categorization using MobileNetV2 and DistilBERT.">
+
+    <style>
+        /* =========================================
+           GLOBAL
+        ========================================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background:
+                #070707;
+
+            color: #f5f5f5;
+
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+
+        /* =========================================
+           NAVBAR
+        ========================================= */
+
+        nav {
+
+            position: fixed;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+
+            z-index: 100;
+
+            padding: 22px 6%;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            background:
+                rgba(7, 7, 7, 0.65);
+
+            backdrop-filter:
+                blur(20px);
+
+            border-bottom:
+                1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .logo {
+
+            font-size: 21px;
+
+            font-weight: 800;
+
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            color: #a78bfa;
+        }
+
+        .nav-links {
+
+            display: flex;
+
+            gap: 32px;
+
+            color: #aaa;
+
+            font-size: 14px;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+
+        /* =========================================
+           HERO
+        ========================================= */
+
+        .hero {
+
+            min-height: 100vh;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            text-align: center;
+
+            padding:
+                140px 20px 100px;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+        .hero::before {
+
+            content: "";
+
+            position: absolute;
+
+            width: 700px;
+            height: 700px;
+
+            background:
+                radial-gradient(circle,
+                    rgba(124, 58, 237, 0.25),
+                    transparent 65%);
+
+            top: -300px;
+            left: 50%;
+
+            transform:
+                translateX(-50%);
+        }
+
+        .hero-content {
+
+            max-width: 950px;
+
+            position: relative;
+
+            z-index: 2;
+        }
+
+        .badge {
+
+            display: inline-block;
+
+            padding:
+                7px 14px;
+
+            border:
+                1px solid rgba(167, 139, 250, 0.35);
+
+            background:
+                rgba(124, 58, 237, 0.10);
+
+            color: #c4b5fd;
+
+            border-radius: 100px;
+
+            font-size: 13px;
+
+            margin-bottom: 28px;
+        }
+
+        .hero h1 {
+
+            font-size:
+                clamp(50px, 8vw, 100px);
+
+            line-height: 0.95;
+
+            letter-spacing: -6px;
+
+            font-weight: 800;
+
+            margin-bottom: 30px;
+        }
+
+        .gradient-text {
+
+            background:
+                linear-gradient(90deg,
+                    #ffffff,
+                    #a78bfa,
+                    #67e8f9);
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+
+            max-width: 680px;
+
+            margin: auto;
+
+            color: #a1a1aa;
+
+            font-size: 18px;
+
+            line-height: 1.8;
+        }
+
+        .hero-buttons {
+
+            margin-top: 40px;
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 15px;
+
+            flex-wrap: wrap;
+        }
+
+        .btn {
+
+            padding:
+                14px 25px;
+
+            border-radius: 10px;
+
+            font-weight: 600;
+
+            transition: 0.25s;
+
+            cursor: pointer;
+
+            border: none;
+        }
+
+        .btn-primary {
+
+            background: white;
+
+            color: black;
+        }
+
+        .btn-primary:hover {
+
+            transform:
+                translateY(-3px);
+
+            box-shadow:
+                0 10px 30px rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-secondary {
+
+            border:
+                1px solid #333;
+
+            color: white;
+
+            background: #111;
+        }
+
+        .btn-secondary:hover {
+            border-color: #666;
+        }
+
+
+        /* =========================================
+           STATS
+        ========================================= */
+
+        .stats {
+
+            max-width: 1000px;
+
+            margin:
+                -80px auto 120px;
+
+            position: relative;
+
+            z-index: 5;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 1px;
+
+            background: #252525;
+
+            border:
+                1px solid #252525;
+
+            border-radius: 18px;
+
+            overflow: hidden;
+        }
+
+        .stat {
+
+            padding: 30px;
+
+            text-align: center;
+
+            background: #0e0e0e;
+        }
+
+        .stat-number {
+
+            font-size: 34px;
+
+            font-weight: 800;
+
+            color: white;
+        }
+
+        .stat-label {
+
+            font-size: 13px;
+
+            color: #777;
+
+            margin-top: 5px;
+        }
+
+
+        /* =========================================
+           SECTIONS
+        ========================================= */
+
+        section {
+
+            max-width: 1150px;
+
+            margin: auto;
+
+            padding:
+                110px 25px;
+        }
+
+        .section-label {
+
+            color: #a78bfa;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            letter-spacing: 2px;
+
+            text-transform: uppercase;
+
+            margin-bottom: 14px;
+        }
+
+        .section-title {
+
+            font-size:
+                clamp(35px, 5vw, 58px);
+
+            letter-spacing: -3px;
+
+            line-height: 1;
+
+            margin-bottom: 25px;
+        }
+
+        .section-description {
+
+            max-width: 680px;
+
+            color: #888;
+
+            font-size: 17px;
+        }
+
+
+        /* =========================================
+           WHY PROJECT
+        ========================================= */
+
+        .why-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                1.2fr 1fr;
+
+            gap: 70px;
+
+            align-items: center;
+        }
+
+        .why-text p {
+
+            color: #999;
+
+            font-size: 17px;
+
+            margin-bottom: 20px;
+        }
+
+        .problem-card {
+
+            padding: 35px;
+
+            border:
+                1px solid #252525;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(145deg,
+                    #111,
+                    #090909);
+        }
+
+        .problem-item {
+
+            display: flex;
+
+            gap: 15px;
+
+            padding: 18px 0;
+
+            border-bottom:
+                1px solid #222;
+        }
+
+        .problem-item:last-child {
+            border-bottom: none;
+        }
+
+        .problem-icon {
+
+            font-size: 22px;
+
+            min-width: 30px;
+        }
+
+        .problem-item strong {
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .problem-item span {
+            color: #777;
+            font-size: 14px;
+        }
+
+
+        /* =========================================
+           ARCHITECTURE
+        ========================================= */
+
+        .architecture {
+
+            margin-top: 60px;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 15px;
+        }
+
+        .arch-card {
+
+            padding: 28px;
+
+            border:
+                1px solid #252525;
+
+            border-radius: 16px;
+
+            background: #0d0d0d;
+
+            transition: 0.25s;
+        }
+
+        .arch-card:hover {
+
+            transform:
+                translateY(-6px);
+
+            border-color: #444;
+        }
+
+        .arch-number {
+
+            color: #555;
+
+            font-size: 12px;
+
+            margin-bottom: 25px;
+        }
+
+        .arch-card h3 {
+            margin-bottom: 8px;
+        }
+
+        .arch-card p {
+
+            color: #777;
+
+            font-size: 13px;
+        }
+
+
+        /* =========================================
+           PIPELINE
+        ========================================= */
+
+        .pipeline {
+
+            margin-top: 60px;
+
+            padding: 40px;
+
+            border:
+                1px solid #242424;
+
+            border-radius: 20px;
+
+            background: #0c0c0c;
+
+            overflow-x: auto;
+        }
+
+        .pipeline-row {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            min-width: 850px;
+
+            gap: 12px;
+        }
+
+        .pipeline-box {
+
+            padding:
+                18px 22px;
+
+            border:
+                1px solid #333;
+
+            border-radius: 12px;
+
+            text-align: center;
+
+            background: #151515;
+
+            min-width: 140px;
+        }
+
+        .pipeline-box small {
+
+            display: block;
+
+            color: #777;
+
+            margin-top: 5px;
+
+            font-size: 11px;
+        }
+
+        .arrow {
+
+            color: #666;
+
+            font-size: 20px;
+        }
+
+
+        /* =========================================
+           APPLICATIONS
+        ========================================= */
+
+        .application-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 18px;
+
+            margin-top: 55px;
+        }
+
+        .application-card {
+
+            padding: 32px;
+
+            border:
+                1px solid #242424;
+
+            border-radius: 18px;
+
+            background:
+                linear-gradient(145deg,
+                    #111,
+                    #0b0b0b);
+        }
+
+        .application-card .icon {
+
+            font-size: 28px;
+
+            margin-bottom: 18px;
+        }
+
+        .application-card h3 {
+            margin-bottom: 8px;
+        }
+
+        .application-card p {
+
+            color: #777;
+
+            font-size: 14px;
+        }
+
+
+        /* =========================================
+           ANALYZER
+        ========================================= */
+
+        #analyzer {
+
+            max-width: 1150px;
+
+            margin:
+                100px auto;
+
+            padding: 0 25px;
+        }
+
+        .analyzer {
+
+            border:
+                1px solid #333;
+
+            border-radius: 28px;
+
+            padding:
+                60px;
+
+            background:
+                radial-gradient(circle at top right,
+                    rgba(124, 58, 237, 0.13),
+                    transparent 45%),
+                #0d0d0d;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+        .analyzer-header {
+
+            text-align: center;
+
+            margin-bottom: 45px;
+        }
+
+        .analyzer-header h2 {
+
+            font-size:
+                clamp(35px, 5vw, 55px);
+
+            letter-spacing: -3px;
+
+            margin-bottom: 15px;
+        }
+
+        .analyzer-header p {
+            color: #777;
+        }
+
+        .form-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 25px;
+
+            max-width: 900px;
+
+            margin: auto;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .input-group label {
+
+            font-size: 13px;
+
+            color: #aaa;
+
+            margin-bottom: 9px;
+
+            font-weight: 600;
+        }
+
+        .input-box {
+
+            width: 100%;
+
+            background: #151515;
+
+            border:
+                1px solid #303030;
+
+            border-radius: 12px;
+
+            padding: 15px;
+
+            color: white;
+
+            font-size: 15px;
+
+            outline: none;
+
+            transition: 0.2s;
+        }
+
+        .input-box:focus {
+            border-color: #8b5cf6;
+        }
+
+        input[type="file"] {
+            cursor: pointer;
+        }
+
+        .analyze-btn {
+
+            width: 100%;
+
+            padding: 17px;
+
+            border: none;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(90deg,
+                    #7c3aed,
+                    #06b6d4);
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: 0.25s;
+        }
+
+        .analyze-btn:hover {
+
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+                0 12px 40px rgba(124, 58, 237, 0.25);
+        }
+
+
+        /* =========================================
+           RESULT
+        ========================================= */
+
+        .result {
+
+            margin:
+                50px auto 0;
+
+            max-width: 900px;
+
+            display: grid;
+
+            grid-template-columns:
+                260px 1fr;
+
+            gap: 30px;
+
+            padding: 25px;
+
+            border:
+                1px solid #292929;
+
+            border-radius: 20px;
+
+            background: #111;
+        }
+
+        .result-image {
+
+            width: 100%;
+
+            height: 260px;
+
+            object-fit: cover;
+
+            border-radius: 14px;
+
+            background: #181818;
+        }
+
+        .result-info {
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: center;
+        }
+
+        .result-label {
+
+            color: #777;
+
+            font-size: 12px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 2px;
+        }
+
+        .result-category {
+
+            font-size: 48px;
+
+            font-weight: 800;
+
+            letter-spacing: -2px;
+
+            margin:
+                5px 0 15px;
+
+            background:
+                linear-gradient(90deg,
+                    white,
+                    #a78bfa);
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;
+        }
+
+        .confidence-text {
+
+            color: #aaa;
+
+            margin-bottom: 12px;
+        }
+
+        .confidence-bar {
+
+            height: 8px;
+
+            background: #222;
+
+            border-radius: 100px;
+
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+
+            height: 100%;
+
+            background:
+                linear-gradient(90deg,
+                    #7c3aed,
+                    #06b6d4);
+
+            border-radius: 100px;
+
+        }
+
+
+        /* =========================================
+           ERROR
+        ========================================= */
+
+        .error {
+
+            max-width: 900px;
+
+            margin: 30px auto 0;
+
+            padding: 15px;
+
+            border:
+                1px solid #632020;
+
+            background:
+                rgba(120, 20, 20, 0.15);
+
+            color: #ff8b8b;
+
+            border-radius: 10px;
+        }
+
+
+        /* =========================================
+           FOOTER
+        ========================================= */
+
+        footer {
+
+            border-top:
+                1px solid #1e1e1e;
+
+            padding:
+                50px 25px;
+
+            text-align: center;
+
+            color: #555;
+
+            font-size: 13px;
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media(max-width: 800px) {
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                letter-spacing: -3px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                margin-left: 20px;
+                margin-right: 20px;
+            }
+
+            .why-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .architecture {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .application-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .input-group.full {
+                grid-column: auto;
+            }
+
+            .analyzer {
+                padding: 30px 20px;
+            }
+
+            .result {
+                grid-template-columns: 1fr;
+            }
+
+            .result-image {
+                height: 300px;
+            }
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================================
+     NAVIGATION
+========================================= -->
+
+    <nav>
+
+        <div class="logo">
+            Fashion<span>AI</span>
+        </div>
+
+        <div class="nav-links">
+
+            <a href="#why">
+                Why
+            </a>
+
+            <a href="#technology">
+                Technology
+            </a>
+
+            <a href="#applications">
+                Applications
+            </a>
+
+            <a href="#analyzer">
+                Try AI
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================================
+     HERO
+========================================= -->
+
+    <header class="hero">
+
+        <div class="hero-content">
+
+            <div class="badge">
+                MULTIMODAL DEEP LEARNING
+            </div>
+
+            <h1>
+
+                Understanding Fashion
+                <br>
+
+                <span class="gradient-text">
+                    Through AI.
+                </span>
+
+            </h1>
+
+            <p>
+
+                A multimodal artificial intelligence system that
+                combines visual understanding and natural language
+                to automatically classify fashion products.
+
+            </p>
+
+            <div class="hero-buttons">
+
+                <a href="#analyzer" class="btn btn-primary">
+                    Try the AI →
+                </a>
+
+                <a href="#technology" class="btn btn-secondary">
+                    Explore Technology
+                </a>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================================
+     STATS
+========================================= -->
+
+    <div class="stats">
+
+        <div class="stat">
+
+            <div class="stat-number">
+                98%
+            </div>
+
+            <div class="stat-label">
+                TEST ACCURACY
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-number">
+                10
+            </div>
+
+            <div class="stat-label">
+                PRODUCT CATEGORIES
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-number">
+                2
+            </div>
+
+            <div class="stat-label">
+                AI MODALITIES
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+     WHY PROJECT
+========================================= -->
+
+    <section id="why">
+
+        <div class="why-grid">
+
+            <div class="why-text">
+
+                <div class="section-label">
+                    WHY THIS PROJECT?
+                </div>
+
+                <h2 class="section-title">
+                    Fashion data is
+                    <span class="gradient-text">
+                        everywhere.
+                    </span>
+                </h2>
+
+                <p>
+
+                    Modern fashion platforms contain thousands
+                    of products. Every product can have an image,
+                    a name and other descriptive information.
+
+                </p>
+
+                <p>
+
+                    Manually categorizing these products can be
+                    time-consuming and inconsistent.
+
+                </p>
+
+                <p>
+
+                    Our project explores how deep learning can
+                    combine <strong>visual information</strong>
+                    with <strong>language information</strong>
+                    to automatically understand and categorize
+                    fashion products.
+
+                </p>
+
+            </div>
+
+
+            <div class="problem-card">
+
+                <div class="problem-item">
+
+                    <div class="problem-icon">
+                        🖼️
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Understand the product image
+                        </strong>
+
+                        <span>
+                            Identify visual patterns, shapes
+                            and appearance.
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="problem-item">
+
+                    <div class="problem-icon">
+                        📝
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Understand product language
+                        </strong>
+
+                        <span>
+                            Extract meaning from product names.
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="problem-item">
+
+                    <div class="problem-icon">
+                        🔗
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Combine both modalities
+                        </strong>
+
+                        <span>
+                            Fuse visual and semantic features.
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="problem-item">
+
+                    <div class="problem-icon">
+                        🎯
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Predict the category
+                        </strong>
+
+                        <span>
+                            Classify the product into one of
+                            ten fashion categories.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+     TECHNOLOGY
+========================================= -->
+
+    <section id="technology">
+
+        <div class="section-label">
+            WHAT WE BUILT
+        </div>
+
+        <h2 class="section-title">
+            Two modalities.
+            <br>
+            <span class="gradient-text">
+                One prediction.
+            </span>
+        </h2>
+
+        <p class="section-description">
+
+            The system processes the same product through
+            two different deep learning pathways before
+            combining their learned representations.
+
+        </p>
+
+
+        <div class="architecture">
+
+            <div class="arch-card">
+
+                <div class="arch-number">
+                    01 / VISION
+                </div>
+
+                <h3>
+                    MobileNetV2
+                </h3>
+
+                <p>
+                    A pretrained convolutional neural network
+                    used to extract visual features from
+                    product images.
+                </p>
+
+            </div>
+
+
+            <div class="arch-card">
+
+                <div class="arch-number">
+                    02 / LANGUAGE
+                </div>
+
+                <h3>
+                    DistilBERT
+                </h3>
+
+                <p>
+                    A transformer-based language model used
+                    to create semantic representations of
+                    product names.
+                </p>
+
+            </div>
+
+
+            <div class="arch-card">
+
+                <div class="arch-number">
+                    03 / FUSION
+                </div>
+
+                <h3>
+                    Feature Fusion
+                </h3>
+
+                <p>
+                    Visual and textual embeddings are
+                    concatenated into a combined representation.
+                </p>
+
+            </div>
+
+
+            <div class="arch-card">
+
+                <div class="arch-number">
+                    04 / CLASSIFICATION
+                </div>
+
+                <h3>
+                    ANN
+                </h3>
+
+                <p>
+                    A neural network learns from the fused
+                    representation and predicts the product
+                    category.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- PIPELINE -->
+
+        <div class="pipeline">
+
+            <div class="pipeline-row">
+
+                <div class="pipeline-box">
+                    Product Image
+                    <small>224 × 224</small>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <div class="pipeline-box">
+                    MobileNetV2
+                    <small>1280 features</small>
+                </div>
+
+                <div class="arrow">+</div>
+
+                <div class="pipeline-box">
+                    Product Name
+                    <small>Text</small>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <div class="pipeline-box">
+                    DistilBERT
+                    <small>768 features</small>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <div class="pipeline-box">
+                    Fusion
+                    <small>2048 features</small>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <div class="pipeline-box">
+                    ANN
+                    <small>10 classes</small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+     APPLICATIONS
+========================================= -->
+
+    <section id="applications">
+
+        <div class="section-label">
+            REAL-WORLD APPLICATIONS
+        </div>
+
+        <h2 class="section-title">
+            Where could this
+            <span class="gradient-text">
+                be useful?
+            </span>
+        </h2>
+
+        <p class="section-description">
+
+            Automatic fashion categorization can act as a
+            building block for larger retail and e-commerce
+            systems.
+
+        </p>
+
+
+        <div class="application-grid">
+
+
+            <div class="application-card">
+
+                <div class="icon">
+                    🛒
+                </div>
+
+                <h3>
+                    E-Commerce Catalogs
+                </h3>
+
+                <p>
+                    Automatically categorize newly added
+                    products and reduce manual catalog work.
+                </p>
+
+            </div>
+
+
+            <div class="application-card">
+
+                <div class="icon">
+                    📦
+                </div>
+
+                <h3>
+                    Inventory Management
+                </h3>
+
+                <p>
+                    Organize large fashion inventories into
+                    standardized product categories.
+                </p>
+
+            </div>
+
+
+            <div class="application-card">
+
+                <div class="icon">
+                    🔎
+                </div>
+
+                <h3>
+                    Product Search
+                </h3>
+
+                <p>
+                    Category predictions can help structure
+                    and filter fashion product searches.
+                </p>
+
+            </div>
+
+
+            <div class="application-card">
+
+                <div class="icon">
+                    🤖
+                </div>
+
+                <h3>
+                    Recommendation Systems
+                </h3>
+
+                <p>
+                    Product categories can become useful
+                    signals for downstream recommendation
+                    systems.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+     LIVE ANALYZER
+========================================= -->
+
+    <div id="analyzer">
+
+        <div class="analyzer">
+
+            <div class="analyzer-header">
+
+                <div class="section-label">
+                    LIVE AI DEMO
+                </div>
+
+                <h2>
+                    Analyze a
+                    <span class="gradient-text">
+                        fashion product.
+                    </span>
+                </h2>
+
+                <p>
+
+                    Upload an image and provide its product
+                    name. Our multimodal model will predict
+                    its fashion category.
+
+                </p>
+
+            </div>
+
+
+            <form method="POST" enctype="multipart/form-data">
+
+                <div class="form-grid">
+
+
+                    <div class="input-group">
+
+                        <label>
+                            PRODUCT IMAGE
+                        </label>
+
+                        <input class="input-box" type="file" name="image" accept="image/*" required>
+
+                    </div>
+
+
+                    <div class="input-group">
+
+                        <label>
+                            PRODUCT NAME
+                        </label>
+
+                        <input class="input-box" type="text" name="product_name" placeholder="Men's Blue Casual Shirt"
+                            required>
+
+                    </div>
+
+
+                    <div class="input-group full">
+
+                        <button class="analyze-btn" type="submit">
+                            Analyze Product →
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+
+            {% if prediction %}
+
+            <div class="result">
+
+                <img class="result-image" src="{{ image_url }}" alt="Uploaded product">
+
+
+                <div class="result-info">
+
+                    <div class="result-label">
+                        Predicted Category
+                    </div>
+
+                    <div class="result-category">
+                        {{ prediction }}
+                    </div>
+
+                    <div class="confidence-text">
+
+                        Model confidence:
+                        <strong>
+                            {{ confidence }}%
+                        </strong>
+
+                    </div>
+
+                    <div class="confidence-bar">
+
+                        <div class="confidence-fill" style="width: {{ confidence }}%"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+
+            {% if error %}
+
+            <div class="error">
+                {{ error }}
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+     FOOTER
+========================================= -->
+
+    <footer>
+
+        FashionAI · Multimodal Deep Learning Project
+
+        <br><br>
+
+        MobileNetV2 · DistilBERT · Feature Fusion · ANN
+
+    </footer>
+
+
+</body>
+
+</html>

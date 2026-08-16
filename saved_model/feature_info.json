@@ -1,0 +1,14 @@
+{
+    "image_model": "MobileNetV2",
+    "image_input_size": [
+        224,
+        224,
+        3
+    ],
+    "image_feature_dimension": 1280,
+    "text_model": "distilbert-base-uncased",
+    "text_feature_dimension": 768,
+    "fused_feature_dimension": 2048,
+    "num_classes": 10,
+    "max_text_length": 32
+}

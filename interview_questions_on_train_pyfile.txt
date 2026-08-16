@@ -1,0 +1,99 @@
+Lesson 1 Interview Questions – Data Loading & Preprocessing
+
+1.  DATASET UNDERSTANDING Q1. Tell me about your dataset? Answer: The
+    Fashion Product Images dataset from Kaggle contains around 44,424
+    products with metadata such as gender, master category, subcategory,
+    article type, season, usage, and product display name. Each product
+    has a corresponding image.
+
+Q2. What is the target variable? Answer: articleType
+
+Q3. Why articleType instead of masterCategory? Answer: articleType
+provides fine-grained classes like Shirts, Jeans, Watches, etc., making
+the problem more meaningful.
+
+Q4. Why not use all columns? Answer: The model only receives an image
+and product name during prediction. Using unavailable metadata would
+cause data leakage.
+
+2.  CSV LOADING Q5. Why Pandas? Answer: Efficient DataFrame operations
+    for tabular data.
+
+Q6. What is a DataFrame? Answer: A two-dimensional table with rows and
+columns.
+
+Q7. Why pd.read_csv()? Answer: The metadata is stored as a CSV file.
+
+Q8. Why engine=“python”? Answer: It handles malformed CSV rows more
+gracefully.
+
+Q9. Why on_bad_lines=“skip”? Answer: Skip corrupted rows without
+stopping the pipeline.
+
+3.  MISSING VALUES Q10. What are missing values? Answer: Empty (NaN)
+    fields in the dataset.
+
+Q11. Why dropna()? Answer: Only a few rows had missing values, so
+removing them had negligible impact.
+
+Q12. When should we fill missing values? Answer: When dropping rows
+would remove too much useful data.
+
+4.  FEATURE SELECTION Q13. Why keep only id, productDisplayName, and
+    articleType? Answer:
+
+-   id → locate image
+-   productDisplayName → Transformer input
+-   articleType → target label
+
+Q14. What is Feature Selection? Answer: Selecting only relevant features
+for the model.
+
+5.  IMAGE VERIFICATION Q15. Why verify image paths? Answer: To avoid
+    runtime errors caused by missing images.
+
+Q16. Why os.path.join()? Answer: It creates OS-independent file paths.
+
+Q17. Why os.path.exists()? Answer: To verify an image exists before
+loading it.
+
+6.  LABEL ENCODING Q18. Why can’t we use string labels? Answer: Neural
+    networks require numeric labels.
+
+Q19. What is Label Encoding? Answer: Converts categorical labels into
+integers.
+
+Q20. Label Encoding vs One-Hot Encoding - Label Encoding: Integer
+values, mainly for target labels. - One-Hot Encoding: Binary vectors,
+mainly for categorical input features.
+
+7.  TRAIN-TEST SPLIT Q21. Why split the dataset? Answer: To evaluate
+    performance on unseen data.
+
+Q22. Why test_size=0.2? Answer: 80% training and 20% testing is a common
+balance.
+
+Q23. Why random_state=42? Answer: Makes the split reproducible.
+
+Q24. Why stratify=df[“label”]? Answer: Maintains class distribution in
+both train and test sets.
+
+8.  GENERAL QUESTIONS Q25. Why not build the CNN immediately? Answer:
+    Clean and understand the data first to avoid poor model performance.
+
+Q26. Why Top 10 article types? Answer: They have enough samples and
+reduce class imbalance.
+
+Q27. What is class imbalance? Answer: Some classes have far more samples
+than others, which can bias the model.
+
+Q28. Why save cleaned_dataset.csv? Answer: It separates raw and
+processed data and avoids repeating preprocessing.
+
+IMPORTANT CODE EXPLANATIONS Be able to explain: - df.dropna() -
+value_counts() - astype(str) - os.path.exists() - os.path.join() -
+LabelEncoder() - fit_transform() - train_test_split() - stratify -
+random_state - on_bad_lines=“skip” - engine=“python”
+
+For every line, answer: 1. What does it do? 2. Why is it needed? 3. What
+happens if it is removed? 4. What alternative exists?
